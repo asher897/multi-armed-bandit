@@ -21,7 +21,7 @@ class Arm():
 
         return reward
 
-    def ucb_algorithm(self, time: int, c: int) -> float:
+    def ucb_algorithm(self, time: int, c: float) -> float:
         exploit: float = self.get_expected_value()
         log = math.log(time)
         times_chosen = self.get_times_chosen()
@@ -44,8 +44,13 @@ class Arm():
         self.expected_value = 0.0
         self.rewards = []
 
-    def reset_arm_op(self):
-        self.expected_value = 5.0
+    def reset_arm_ucb(self):
+        self.expected_value = 0.0
+        self.rewards = []
+        self.times_chosen = 0.00001
+
+    def reset_arm_op(self, op_val: int):
+        self.expected_value = op_val
         self.rewards = [self.expected_value]
 
     def get_times_chosen(self) -> int:
