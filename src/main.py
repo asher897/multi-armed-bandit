@@ -1,6 +1,7 @@
 from arm import Arm
 from algorithms import BanditAlgorithm, EpsilonGreedy, OptimisticInit, UCB
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 
 import numpy as np
 import math
@@ -46,9 +47,11 @@ def main():
     avg_vals_op = multi_arm_bandit(op)
     avg_vals_ucb = multi_arm_bandit(ucb)
 
-    plt.plot(avg_vals_ep, label='Epsilon Greedy')
-    plt.plot(avg_vals_op, label="Optimistic Initialization")
-    plt.plot(avg_vals_ucb, label="UCB")
+    plt.plot(avg_ep, label='Epsilon Greedy')
+    plt.plot(avg_op, label="Optimistic Initialization")
+    plt.plot(avg_ucb, label="UCB")
+    plt.xlabel("Step")
+    plt.ylabel("Average Reward")
     plt.legend()
     plt.show()
 
