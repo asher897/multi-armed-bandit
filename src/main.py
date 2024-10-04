@@ -1,59 +1,56 @@
 from arm import Arm
-from algorithms.epsilon_greedy import EpsilonGreedy
-from algorithms.optimistic_initialization import OptimisticInit
-from algorithms.ucb import UCB
+from algorithms import BanditAlgorithm, EpsilonGreedy, OptimisticInit, UCB
 import matplotlib.pyplot as plt
 
 import numpy as np
 import math
+from typing import List, Dict
+
+
+def multi_arm_bandit(algorithm: BanditAlgorithm, arms_amount=10, time_steps=1000, runs=100, epsilon=0.1):
+    '''
+    Runs a multi arm bandit agent for a given algorithm.
+    Each arm is initiated with a random sample drawn from a normal distribution.
+    Each arm is run for a given amount of time steps.
+    There are a given amount of iterations to perform each run to take an average over
+    :param algorithm: The algorithm to use for the multi-arm bandit.
+                        One of OptimisticInit, EpsilonGreedy, UCB
+    :param arms_amount: How many arms to initialize
+    :param time_steps: The amount of time steps to run for the multi-arm bandit agent.
+    :param runs: How many runs to perform the multi-arm bandit to take an average over
+    :param epsilon: Epsilon parameter for the epsilon-greedy algorithm
+
+    :return: The average values for all the multi-arm bandits run over the amount of runs
+    '''
+    arms: List[Arm] = [Arm(i, np.random.normal(0, math.sqrt(1)), op=type(algorithm) == OptimisticInit) for i in range(arms_amount)]
+    total_returns: List[List[int]] = []
+
+    for i in range(runs):
+        return_vals: List[int]  = []
+        arms = [arm.reset_arm() for arm in arms]
+        for j in range(time_steps):
+            result = algorithm.run(arms=arms, epsilon=epsilon, time=j+1)
+            return_vals.append(result)
+        total_returns.append(return_vals)
+
+    avg_vals = np.mean(total_returns, axis=0)
+    return avg_vals
+
 
 def main():
-    arms_ep: [] = []
-    arms_op: [] = []
-    arms_ucb: [] = []
-    return_vals_ep: [] = []
-    return_vals_op: [] = []
-    return_vals_ucb: [] = []
-    total_returns_ep: [] = []
-    total_returns_op: [] = []
-    total_returns_ucb: [] = []
     ep = EpsilonGreedy()
     op = OptimisticInit()
     ucb = UCB()
-    for i in range(10):
-        mean = np.random.normal(0, math.sqrt(3))
-        arms_ep.append(Arm(i, mean))
-        arms_op.append(Arm(i, mean, op=True))
-        arms_ucb.append(Arm(i, mean))
 
-    for i in range(100):
-        for i in range(len(arms_ep)):
-            arms_ep[i].reset_arm()
-            arms_op[i].reset_arm()
-            arms_ucb[i].reset_arm()
-        for j in range(1000):
-            return_vals_ep.append(ep.epsilon_greedy(0.1, arms_ep))
-            return_vals_op.append(op.exploit(arms_op))
-            return_vals_ucb.append(ucb.ucb_algorithm(arms_ucb, time=j+1))
-        total_returns_ep.append(return_vals_ep)
-        total_returns_op.append(return_vals_op)
-        total_returns_ucb.append(return_vals_ucb)
-        return_vals_ep = []
-        return_vals_op = []
-        return_vals_ucb = []
-
-    avg_vals_ep = np.mean(total_returns_ep, axis=0)
-    avg_vals_op = np.mean(total_returns_op, axis=0)
-    avg_vals_ucb = np.mean(total_returns_ucb, axis=0)
+    avg_vals_ep = multi_arm_bandit(ep)
+    avg_vals_op = multi_arm_bandit(op)
+    avg_vals_ucb = multi_arm_bandit(ucb)
 
     plt.plot(avg_vals_ep, label='Epsilon Greedy')
     plt.plot(avg_vals_op, label="Optimistic Initialization")
     plt.plot(avg_vals_ucb, label="UCB")
     plt.legend()
     plt.show()
-
-    # for arm in arms:
-    #     print(arm.get_expected_value())
 
 
 if __name__ == "__main__":

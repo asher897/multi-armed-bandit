@@ -1,13 +1,15 @@
 import numpy as np
 import math
 
-class Arm():
+from typing import List
+
+class Arm(object):
     def __init__(self, index: int, mean: float, op: bool = False):
         self.reward_func = None
         self.mean: float = mean
         self.variance: int = 1
         self.expected_value: float = 5.0 if op else 0.0
-        self.rewards: [] = [self.expected_value] if op else []
+        self.rewards: List[float] = [self.expected_value] if op else []
         self.index = index
         self.times_chosen: float = 0.00001
 
@@ -43,6 +45,8 @@ class Arm():
     def reset_arm(self):
         self.expected_value = 0.0
         self.rewards = []
+
+        return self
 
     def reset_arm_op(self):
         self.expected_value = 5.0
